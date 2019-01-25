@@ -1,0 +1,24 @@
+.cus-nav a{
+	color:#fff;
+}
+.cus-menu li ul{
+	padding-left:35px;
+	
+}
+.cus-menu{
+	border: 1px solid #ddd !important;
+	border-radius: 5px;
+	
+}
+.cus-content .table th{
+	font-size:13px;
+	text-align: center;
+}
+.cus-content .table td{
+	font-size:12px;
+	text-align: center;
+	vertical-align: middle;
+}
+.cus-content .pagination{
+	margin:0px;
+}

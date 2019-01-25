@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.stk.dao.CodeItemDao">
+	<!-- 登陆 -->
+	<select id="login" parameterType="java.lang.String">
+		select password from t_user where
+		userName=#{userName}
+	</select>
+	<!-- 增加单条物品信息 -->
+	<insert id="saveedit" parameterType="CodeItem">
+		insert into
+		codeitem(name,code,picture,price,count,discount,description,date)
+		values
+		(#{name},#{code},#{picture},#{price},#{count},#{discount},#{description},#{date})
+	</insert>
+	<!-- 删除单条物品信息 -->
+	<delete id="delprobysingle">
+ 		delete from codeitem where id=#{id}
+	</delete>
+	<!-- 修改单条物品信息 -->
+	<update id="upprobysingle" parameterType="CodeItem">
+		update codeitem set
+		name=#{name},code=#{code},picture=#{picture},price=#{price},count=#{count},
+		discount=#{discount},description=#{description} where id=#{id}
+	</update>
+	<!-- 查询单条物品信息 -->
+	<select id="selprobysingle" resultType="CodeItem">
+		select * from codeitem where
+		id=#{id}
+	</select>
+	<!-- 根据条形码查询单条物品信息 -->
+	<select id="selprobycode" resultType="CodeItem">
+		select * from codeitem where
+		code=#{code}
+	</select>
+	<!-- 查询所有物品信息 -->
+	<select id="selprobytotal" resultType="CodeItem">
+		select * from codeitem
+	</select>
+	<!-- 根据条形码查询单条物品库存数量 -->
+	<select id="selpronumbycode" resultType="ProNum">
+		select code,count as num from codeitem where
+		code=#{code}
+	</select>
+	<!-- 入库（减少对应库存） -->
+	<update id="rfdel" parameterType="java.util.List">
+		update codeitem set count=count-
+		<foreach collection="list" item="item" index="index" separator=" " open="case code" close="end">
+			when #{item.ocode} then #{item.num}
+		</foreach>
+		where code in
+		<foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+			#{item.ocode}
+		</foreach>
+	</update>
+	<!--添加销售记录-->
+	<insert id="addsalerd">
+		INSERT INTO rf (ocode, num, oprice,saledate) VALUES
+		<foreach collection ="list" item="rf" separator =",">
+			(#{rf.ocode}, #{rf.num}, #{rf.oprice},#{rf.saledate})
+		</foreach >
+	</insert>
+	<!-- 添加重复商品 -->
+	<update id="addprorepeat" parameterType="java.lang.String">
+		update codeitem set count=count+1 where code=#{code}
+	</update>
+	<!-- 查询销售订单 -->
+	<select id="seltotalorder" resultMap="orderk">
+          select * from rf r join codeitem c on r.ocode=c.code
+     </select>
+	<resultMap type="Order" id="orderk">
+		<id property="oid" column="oid"/>
+		<result property="ocode" column="code"/>
+		<result property="num" column="num"/>
+		<result property="oprice" column="oprice"/>
+		<result property="saledate" column="saledate"/>
+		<association property="codeItem" javaType="CodeItem">
+			<id property="id" column="id"/>
+			<result property="name" column="name"/>
+			<result property="price" column="price"/>
+		</association>
+	</resultMap>
+	<!-- 按照日期筛选查询销售订单 -->
+	<select id="selorderbydate" resultMap="orderkda" parameterType="SelDates">
+          <!--select * from rf r join codeitem c on r.ocode=c.code where  date(r.saledate) between #{startdate} and #{enddate}-->
+		SELECT * FROM rf r JOIN codeitem c ON r.ocode = c.code WHERE DATE_FORMAT(r.saledate, '%Y%m%d%H%i%s') between
+		DATE_FORMAT(#{startdate}, '%Y%m%d%H%i%s')  and  DATE_FORMAT(#{enddate}, '%Y%m%d%H%i%s')
+
+	</select>
+	<resultMap type="Order" id="orderkda">
+		<id property="oid" column="oid"/>
+		<result property="ocode" column="code"/>
+		<result property="num" column="num"/>
+		<result property="oprice" column="oprice"/>
+		<result property="saledate" column="saledate"/>
+		<association property="codeItem" javaType="CodeItem">
+			<id property="id" column="id"/>
+			<result property="name" column="name"/>
+			<result property="price" column="price"/>
+		</association>
+	</resultMap>
+
+</mapper>
