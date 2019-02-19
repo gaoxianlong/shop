@@ -6,7 +6,7 @@
 <html>
 <body>
 <center>
-       <a href="selprobytotal">首页</a><a href="html/Sale.jsp">销售</a><br/>
+       <a href="selprobytotal">首页</a><a href="html/Sale.jsp">销售l</a><br/>
 
 
 </center>
